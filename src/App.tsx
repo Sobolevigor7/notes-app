@@ -10,24 +10,29 @@ import { NotesContextProvider } from "./context/notesContext";
 import { DbContextProvider } from "./context/dbContext";
 import { DbHandler } from "./DbHandler";
 import { WorkSpaceContextProvider } from "./context/workSpaceContext";
+import { SearchContextProvider } from "./context/searchContext";
+
+// TODO types
 
 function App() {
   return (
     <div className={styles.App}>
       <DbContextProvider>
         <WorkSpaceContextProvider>
-          <Layout>
-            <AppHeader />
-          </Layout>
-          <Layout hasSider>
-            <SideBar />
-          </Layout>
-          <Layout className="site-layout">
-            <NotesContextProvider>
-              <WorkSpace />
-              <DbHandler />
-            </NotesContextProvider>
-          </Layout>
+          <SearchContextProvider>
+            <Layout>
+              <AppHeader />
+            </Layout>
+            <Layout hasSider>
+              <SideBar />
+            </Layout>
+            <Layout className="site-layout">
+              <NotesContextProvider>
+                <WorkSpace />
+                <DbHandler />
+              </NotesContextProvider>
+            </Layout>
+          </SearchContextProvider>
         </WorkSpaceContextProvider>
       </DbContextProvider>
     </div>

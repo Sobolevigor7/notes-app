@@ -5,18 +5,19 @@ import { useContext } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { dbContext } from "./context/dbContext";
 import { workSpaceContext } from "./context/workSpaceContext";
+import { searchContext } from "./context/searchContext";
 
 export function DbHandler() {
   const { data, setData } = useContext<any>(notesContext);
   const { dbData, setDbData } = useContext<any>(dbContext);
   const { currentNote, setCurrentNote } = useContext<any>(workSpaceContext);
+  const { searchString } = useContext<any>(searchContext);
 
   async function addNote() {
     try {
       const newId = await db.notes.add({
-        title: "title",
         change_date: Date.now(),
-        content: "",
+        content: "**NEW NOTE**",
       });
       setCurrentNote({
         id: newId.toString(),
@@ -24,6 +25,7 @@ export function DbHandler() {
         openedForEdit: true,
         delete: false,
       });
+      //setData("**NEW NOTE **");
       setDbData(dataBase);
     } catch (err) {
       console.log(err);
@@ -40,32 +42,61 @@ export function DbHandler() {
   }
 
   async function updateNote() {
-    try {
-      await db.notes.update(parseInt(currentNote.id, 10), {
-        content: data,
-        change_date: Date.now(),
-      });
-    } catch (err) {
-      console.log(err);
+    if (currentNote.id) {
+      try {
+        await db.notes.update(parseInt(currentNote.id, 10), {
+          content: data,
+          //change_date: Date.now(),
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }
+
+  async function updateNoteEditTime() {
+    if (currentNote.id) {
+      try {
+        await db.notes.update(parseInt(currentNote.id, 10), {
+          content: data,
+          change_date: Date.now(),
+        });
+      } catch (err) {
+        console.log(err);
+      }
     }
   }
 
   useEffect(() => {
-    if (currentNote.openedForEdit) {
-      updateNote();
-    }
+    updateNote();
+  }, [data]);
+
+  useEffect(() => {
     if (currentNote.delete) {
-      deleteNote();
+      if (currentNote.id !== "" && currentNote.id) {
+        deleteNote();
+      }
     }
     if (currentNote.new) {
       addNote();
     }
+    if (currentNote.touched) {
+      updateNoteEditTime();
+    }
   }, [currentNote]);
 
   const dataBase = useLiveQuery(() => db.notes.toArray());
+
+  const result = dataBase?.filter((elem) =>
+    elem?.content
+      ?.toLowerCase()
+      .includes(searchString.toString().toLowerCase().trim())
+  );
+
   useEffect(() => {
-    setDbData(dataBase);
-  }, [dataBase]);
+    if (searchString.length > 0) setCurrentNote.id = null;
+    setDbData(result);
+  }, [dataBase, searchString]);
 
   return <></>;
 }

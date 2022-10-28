@@ -2,7 +2,6 @@ import Dexie, { Table } from "dexie";
 
 export interface INotes {
   id?: number;
-  title: string;
   change_date: number;
   content?: string;
 }

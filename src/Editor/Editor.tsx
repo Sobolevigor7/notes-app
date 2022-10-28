@@ -21,37 +21,65 @@ export const State = (props: any) => {
 };
 
 export const Editor = () => {
+  const [touched, setTouched] = useState(false);
   const { setData } = useContext<any>(notesContext);
 
   const { currentNote, setCurrentNote } = useContext<any>(workSpaceContext);
   const { dbData, setDbData } = useContext<any>(dbContext);
-  //const [noteToDisplay, setNoteToDisplay] = useState("");
 
-  const [value, setValue] = useState("** New note**");
+  const [value, setValue] = useState("");
   const events = {
     focus: () => console.log("focus"),
-    blur: () =>
-      setCurrentNote({ id: currentNote.id, openedForEdit: false, new: false }),
+    blur: () => {
+      {
+        if (value.length === 0) {
+          setCurrentNote({
+            //Если руками стерли заметку - ставим на удаление
+            id: currentNote.id,
+            openedForEdit: false,
+            new: false,
+            delete: true,
+          });
+        } else {
+          setCurrentNote({
+            id: currentNote.id,
+            openedForEdit: false,
+            new: false,
+          });
+        }
+      }
+    },
   } as SimpleMdeToCodemirrorEvents;
 
-  useEffect(() => {
+  const changeValueFromDb = () => {
     if (currentNote.id && dbData) {
-      console.log("new id&", currentNote);
-      console.log("new DB", dbData);
       const note = dbData.filter(
         (elem: any) => elem.id.toString() === currentNote.id
       );
+
       if (note[0]) {
-        console.log("content", note);
         setValue(note[0].content);
         setData(note[0].content);
+        console.log(note[0].content);
       }
     }
+  };
+
+  useEffect(() => {
+    changeValueFromDb();
   }, [currentNote, dbData]);
 
-  const onChange = (value: string) => {
-    setValue(value);
-    setData(value);
+  const onChange = () => {
+    changeValueFromDb();
+    if (!touched) {
+      setTouched(true);
+      setCurrentNote({
+        id: currentNote.id,
+        new: currentNote.new,
+        openedForEdit: currentNote.openedForEdit,
+        touched: true,
+      });
+    }
   };
 
   const handleTextChangeByButton = () => {

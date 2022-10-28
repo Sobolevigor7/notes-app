@@ -6,6 +6,7 @@ import { notesContext } from "../context/notesContext";
 import { db } from "../db";
 import { workSpaceContext } from "../context/workSpaceContext";
 import { dbContext } from "../context/dbContext";
+import { searchContext } from "../context/searchContext";
 const { Content } = Layout;
 
 export function WorkSpace() {
@@ -14,16 +15,17 @@ export function WorkSpace() {
   const { dbData, setDbData } = useContext<any>(dbContext);
   const [noteToDisplay, setNoteToDisplay] = useState("");
   const [noteEdit, setNoteToEdit] = useState(false);
+
   useEffect(() => {
     if (currentNote.id && dbData) {
       const note = dbData.filter(
         (elem: any) => elem.id.toString() === currentNote.id
       );
       if (note[0]) {
-        setNoteToDisplay(note[0].title + note[0].content);
+        setNoteToDisplay("" + note[0].content);
       }
     }
-    if (!dbData || dbData.length === 0) {
+    if (!dbData || dbData.length === 0 || !currentNote.id) {
       setNoteToDisplay("");
     }
   }, [currentNote, dbData]);
@@ -37,7 +39,7 @@ export function WorkSpace() {
       {noteToDisplay && !currentNote.openedForEdit && (
         <div onClick={handleClick}>{noteToDisplay} </div>
       )}
-      {noteToDisplay && currentNote.openedForEdit && <Editor />}
+      {currentNote.openedForEdit && <Editor />}
 
       <div>NEW EDITOR END</div>
     </Content>
