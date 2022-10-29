@@ -9,16 +9,19 @@ export function SearchBox() {
   const { setCurrentNote } = useContext<any>(workSpaceContext);
 
   const handleChange = (el: ChangeEvent<HTMLInputElement>) => {
-    const mask = /^[А-Я а-я ёЁ a-z A-Z]+$/;
-    //if (!mask.exec(el.target.value)) return;
     changeValue(el.target.value);
     setSearchString(el.target.value);
     setCurrentNote({ id: null });
   };
   return (
     <span>
-      <span>SearchBox</span>
-      <input type="text" value={value} onChange={(el) => handleChange(el)} />
+      <input
+        className={styles.searchBox}
+        type="text"
+        placeholder="🔍  search"
+        value={value}
+        onChange={(el) => handleChange(el)}
+      />
     </span>
   );
 }

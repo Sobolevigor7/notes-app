@@ -8,8 +8,8 @@ import { workSpaceContext } from "./context/workSpaceContext";
 import { searchContext } from "./context/searchContext";
 
 export function DbHandler() {
-  const { data, setData } = useContext<any>(notesContext);
-  const { dbData, setDbData } = useContext<any>(dbContext);
+  const { data } = useContext<any>(notesContext);
+  const { setDbData } = useContext<any>(dbContext);
   const { currentNote, setCurrentNote } = useContext<any>(workSpaceContext);
   const { searchString } = useContext<any>(searchContext);
 
@@ -17,7 +17,7 @@ export function DbHandler() {
     try {
       const newId = await db.notes.add({
         change_date: Date.now(),
-        content: "**NEW NOTE**",
+        content: "## NEW NOTE",
       });
       setCurrentNote({
         id: newId.toString(),
@@ -25,7 +25,7 @@ export function DbHandler() {
         openedForEdit: true,
         delete: false,
       });
-      //setData("**NEW NOTE **");
+
       setDbData(dataBase);
     } catch (err) {
       console.log(err);
@@ -46,7 +46,6 @@ export function DbHandler() {
       try {
         await db.notes.update(parseInt(currentNote.id, 10), {
           content: data,
-          //change_date: Date.now(),
         });
       } catch (err) {
         console.log(err);
@@ -90,6 +89,15 @@ export function DbHandler() {
   const result = dataBase?.filter((elem) =>
     elem?.content
       ?.toLowerCase()
+      .split("\n")
+      .join(" ")
+      .split("**")
+      .join(" ")
+      .split("  ")
+      .join(" ")
+      .split("\n\n")
+      .join()
+      .trim()
       .includes(searchString.toString().toLowerCase().trim())
   );
 

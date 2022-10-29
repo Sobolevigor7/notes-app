@@ -1,3 +1,33 @@
-.test {
-    color: red;
+.noteItem > h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 10px !important;
+    font-size: 20px;
 }
+
+.noteItem > p, span {
+    font-size: 12px;
+}
+
+.noteItem {
+    position: relative;
+}
+
+
+.noteItem > * {
+    height: 30px;
+    line-height: 15px;
+    padding: 0;
+    margin: 0;
+    text-overflow: ellipsis;
+}
+
+.noteContent {
+    margin: 0;
+    display: block;
+    height: 30px !important;
+}
+
+.noteDate {
+    height: 20px !important;
+    display: block;
+}
+

@@ -1,4 +1,8 @@
 .App {
   text-align: center;
+}
 
+.mainArea{
+  display: flex;
+  margin-top: 100px;
 }

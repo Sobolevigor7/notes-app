@@ -1,61 +1,35 @@
 import { Layout, Menu } from "antd";
-import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styles from "./sidebar.module.css";
-import {
-  AppstoreOutlined,
-  BarChartOutlined,
-  CloudOutlined,
-  ShopOutlined,
-  TeamOutlined,
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-} from "@ant-design/icons";
 
 import type { MenuProps } from "antd";
 import { dbContext } from "../context/dbContext";
 import { workSpaceContext } from "../context/workSpaceContext";
 import { MenuInfo } from "rc-menu/lib/interface";
+import { marked } from "marked";
 
 const { Sider } = Layout;
 
-/*const items: MenuProps["items"] = [
-  UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
-  BarChartOutlined,
-  CloudOutlined,
-  AppstoreOutlined,
-  TeamOutlined,
-  ShopOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
-  BarChartOutlined,
-  CloudOutlined,
-  AppstoreOutlined,
-  TeamOutlined,
-  ShopOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
-  BarChartOutlined,
-  CloudOutlined,
-  AppstoreOutlined,
-  TeamOutlined,
-  ShopOutlined,
-].map((icon, index) => ({
-  key: String(index + 1),
-  icon: React.createElement(icon),
-  label: `nav ${index + 1}`,
-}));*/
+export function parseDate(date: number) {
+  const newDateToParse = new Date(date);
+  let newDate;
+  if (newDateToParse.toDateString() === new Date(Date.now()).toDateString()) {
+    newDate = newDateToParse.toTimeString().slice(0, 5);
+  } else {
+    newDate = newDateToParse.toLocaleDateString();
+  }
+
+  return <div>{newDate}</div>;
+}
 
 export function SideBar() {
   let items: MenuProps["items"] = [];
   const { dbData } = useContext<any>(dbContext);
   const { currentNote, setCurrentNote } = useContext<any>(workSpaceContext);
   const [currentActive, setCurrentActive] = useState<string>("");
-  const [noFirstLoad, setNoFirstLoad] = useState<boolean>(false);
+  function createMarkUp(note: any) {
+    return { __html: note };
+  }
 
   if (dbData) {
     dbData.sort((a: any, b: any) => {
@@ -69,33 +43,18 @@ export function SideBar() {
     });
     items = dbData.map((record: any) => ({
       key: record.id,
-      label: record.content, //, <div className={styles.test}>{record.content}1</div>
+      label: (
+        <div className={styles.noteItem}>
+          <div className={styles.noteDate}>{parseDate(record.change_date)}</div>
+          <div
+            className={styles.noteContent}
+            dangerouslySetInnerHTML={createMarkUp(marked.parse(record.content))}
+          />
+        </div>
+      ),
     }));
   }
 
-  /* useEffect(() => {
-    if (items && items.length > 0 && !noFirstLoad) {
-      setNoFirstLoad(true);
-      let tempArr = [] as Array<any>;
-      if (dbData.length === 1) {
-        setCurrentNote({
-          id: dbData[0].id.toString(),
-          openedForEdit: currentNote.openedForEdit,
-        });
-        setCurrentActive(dbData[0].id.toString());
-      } else {
-        for (const i of dbData) {
-          tempArr.push(i?.id);
-        }
-        if (tempArr && tempArr.length !== 0) {
-          const active = Math.max.apply(null, tempArr).toString();
-
-          setCurrentNote({ id: active });
-          setCurrentActive(active);
-        }
-      }
-    }
-  });*/
   useEffect(() => {
     setCurrentActive(currentNote.id);
   }, [currentNote.id]);
@@ -111,11 +70,14 @@ export function SideBar() {
         theme="light"
         style={{
           overflow: "auto",
-          height: "100vh",
+          height: "90vh",
           position: "fixed",
           left: 0,
-          top: 100,
+          top: 110,
           bottom: 0,
+          borderTop: "1px solid rgba(76, 81, 88, 0.28)",
+          paddingTop: "10px",
+          zIndex: "2",
         }}
       >
         <Menu

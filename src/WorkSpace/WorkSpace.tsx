@@ -2,19 +2,21 @@ import React, { useContext, useEffect, useState } from "react";
 import styles from "./workspace.module.css";
 import { Layout } from "antd";
 import { Editor } from "../Editor";
-import { notesContext } from "../context/notesContext";
-import { db } from "../db";
+
 import { workSpaceContext } from "../context/workSpaceContext";
 import { dbContext } from "../context/dbContext";
-import { searchContext } from "../context/searchContext";
+
+import { marked } from "marked";
+
+import { parseDate } from "../SideBar";
+
 const { Content } = Layout;
 
 export function WorkSpace() {
-  const { data, setData } = useContext<any>(notesContext);
   const { currentNote, setCurrentNote } = useContext<any>(workSpaceContext);
-  const { dbData, setDbData } = useContext<any>(dbContext);
+  const { dbData } = useContext<any>(dbContext);
   const [noteToDisplay, setNoteToDisplay] = useState("");
-  const [noteEdit, setNoteToEdit] = useState(false);
+  const [dateToDisplay, setDateToDisplay] = useState(<div></div>);
 
   useEffect(() => {
     if (currentNote.id && dbData) {
@@ -22,26 +24,40 @@ export function WorkSpace() {
         (elem: any) => elem.id.toString() === currentNote.id
       );
       if (note[0]) {
-        setNoteToDisplay("" + note[0].content);
+        setDateToDisplay(parseDate(note[0].change_date));
+
+        const value = marked.parse(note[0].content);
+
+        setNoteToDisplay(value);
       }
     }
-    if (!dbData || dbData.length === 0 || !currentNote.id) {
-      setNoteToDisplay("");
+    if (!dbData || dbData.length === 0) {
+      setNoteToDisplay("Please, add notes");
+    } else if (!currentNote.id) {
+      setNoteToDisplay("Please, select the note");
     }
   }, [currentNote, dbData]);
-
+  function createMarkUp() {
+    return { __html: noteToDisplay };
+  }
   const handleClick = () => {
     setCurrentNote({ id: currentNote.id, openedForEdit: true, new: false });
   };
   return (
-    <Content style={{ margin: "100px 16px 0", overflow: "initial" }}>
-      <div>NEW EDITOR</div>
+    <Content className={styles.container}>
       {noteToDisplay && !currentNote.openedForEdit && (
-        <div onClick={handleClick}>{noteToDisplay} </div>
+        <div className={styles.previewArea} onClick={handleClick}>
+          <div className={styles.previewHeader}>
+            <div className={styles.dateToDisplay}>{dateToDisplay}</div>
+            <p>Press to edit</p>
+          </div>
+          <div
+            className={styles.content}
+            dangerouslySetInnerHTML={createMarkUp()}
+          />{" "}
+        </div>
       )}
       {currentNote.openedForEdit && <Editor />}
-
-      <div>NEW EDITOR END</div>
     </Content>
   );
 }

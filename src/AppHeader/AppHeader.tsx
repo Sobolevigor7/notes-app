@@ -1,24 +1,20 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styles from "./appheader.module.css";
-import { Menu, PageHeader, Modal } from "antd";
+import { Modal, Tooltip, Button } from "antd";
+import { FormOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { SearchBox } from "../SearchBox";
 import { workSpaceContext } from "../context/workSpaceContext";
-import { MenuInfo } from "rc-menu/lib/interface";
+
 import { dbContext } from "../context/dbContext";
-
-// TODO Block new button while search is active
-
-const items = [
-  { key: "new", label: "New" },
-  { key: "edit", label: "Edit" },
-  { key: "delete", label: "Delete" },
-];
+import { searchContext } from "../context/searchContext";
 
 export function AppHeader() {
   const { currentNote, setCurrentNote } = useContext<any>(workSpaceContext);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [message, setMessage] = useState("");
   const { dbData } = useContext<any>(dbContext);
+  const { searchString } = useContext<any>(searchContext);
+  const [disableNewButton, setDisableNewButton] = useState(false);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -33,48 +29,74 @@ export function AppHeader() {
     setMessage("");
   };
 
-  const handleClick = (el: MenuInfo) => {
-    if (el.key === "new") {
-      setCurrentNote({ new: true, openedForEdit: false });
-    }
-    if (el.key === "edit" && currentNote.id) {
+  const handleNewNote = () => {
+    setCurrentNote({ new: true, openedForEdit: false });
+  };
+  const handleEditNote = () => {
+    if (currentNote.id) {
       setCurrentNote({ id: currentNote.id, new: false, openedForEdit: true });
     }
-    if (el.key === "delete") {
-      if (currentNote.id) {
-        const content = dbData.filter(
-          (record: any) => record.id.toString() === currentNote.id
-        );
-        if (content[0].content) {
-          setMessage(content[0].content);
-        }
-        showModal();
+  };
+
+  const handleDeleteNote = () => {
+    if (currentNote.id) {
+      const content = dbData.filter(
+        (record: any) => record.id.toString() === currentNote.id
+      );
+      if (content[0].content) {
+        setMessage(content[0].content);
       }
+      showModal();
     }
   };
+
+  useEffect(() => {
+    if (searchString && searchString.length > 0) {
+      setDisableNewButton(true);
+    } else {
+      setDisableNewButton(false);
+    }
+  }, [searchString]);
   return (
-    <>
-      <PageHeader
-        className="site-page-header"
-        style={{ position: "fixed", zIndex: 1, width: "100%" }}
-      >
-        <Menu
-          theme="light"
-          mode="horizontal"
-          items={items}
-          onClick={(el) => handleClick(el)}
-          selectedKeys={[""]}
-        />
+    <div className={styles.container}>
+      <div className={styles.pageHeader}>
+        <div className={styles.buttonGroup}>
+          <Tooltip title="New note">
+            <Button
+              className={styles.btn}
+              disabled={disableNewButton}
+              icon={<FormOutlined />}
+              shape="circle"
+              onClick={handleNewNote}
+            ></Button>
+          </Tooltip>
+          <Tooltip title="Edit note">
+            <Button
+              className={styles.btn}
+              icon={<EditOutlined />}
+              shape="circle"
+              onClick={handleEditNote}
+            ></Button>
+          </Tooltip>
+          <Tooltip title="Delete note">
+            <Button
+              className={styles.btn}
+              shape="circle"
+              icon={<DeleteOutlined />}
+              onClick={handleDeleteNote}
+            ></Button>
+          </Tooltip>
+        </div>
         <SearchBox />
         <Modal
-          title="a"
+          title="Confirm the action"
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}
         >
           <p>ARE YOU SURE TO DELETE NOTE: {message}?</p>
         </Modal>
-      </PageHeader>
-    </>
+      </div>
+    </div>
   );
 }

@@ -1,10 +1,4 @@
 import React, { useState } from "react";
-//import {useUserData} from "../../hooks/useUserData";
-
-/*export interface IUserContextData {
-  name?: string;
-  iconImg?: string;
-}*/
 
 export const notesContext = React.createContext({});
 
