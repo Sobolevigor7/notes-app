@@ -21,13 +21,30 @@
 }
 
 .noteContent {
-    margin: 0;
-    display: block;
-    height: 30px !important;
+
+
+
+    width: 80%;
 }
 
 .noteDate {
     height: 20px !important;
     display: block;
+}
+
+.noteItemHeader {
+    font-weight: 500;
+    font-size: 20px;
+}
+.noteItemHeader > * {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.noteItemContent {
+    display: flex;
+}
+.noteContent > * {
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 

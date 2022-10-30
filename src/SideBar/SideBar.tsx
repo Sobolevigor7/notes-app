@@ -8,6 +8,8 @@ import { workSpaceContext } from "../context/workSpaceContext";
 import { MenuInfo } from "rc-menu/lib/interface";
 import { marked } from "marked";
 
+import DOMPurify from "dompurify";
+
 const { Sider } = Layout;
 
 export function parseDate(date: number) {
@@ -31,6 +33,60 @@ export function SideBar() {
     return { __html: note };
   }
 
+  function prepareRecord(record: any) {
+    const title = record.content.split("\n")[0];
+    const cont = record.content.split("\n").slice(1).join(" ");
+    return (
+      <div className={styles.noteItem}>
+        <div
+          className={styles.noteItemHeader}
+          dangerouslySetInnerHTML={createMarkUp(
+            DOMPurify.sanitize(marked.parse(title), {
+              ALLOWED_TAGS: [
+                "b",
+                "p",
+                "strong",
+                "em",
+                "i",
+                "h1",
+                "h2",
+                "h3",
+                "h4",
+                "h5",
+                "h6",
+                "span",
+              ],
+            })
+          )}
+        ></div>
+        <div className={styles.noteItemContent}>
+          <div className={styles.noteDate}>{parseDate(record.change_date)}</div>
+          <p>&nbsp;</p>
+          <div
+            className={styles.noteContent}
+            dangerouslySetInnerHTML={createMarkUp(
+              DOMPurify.sanitize(marked.parse(cont), {
+                ALLOWED_TAGS: [
+                  "b",
+                  "p",
+                  "strong",
+                  "em",
+                  "i",
+                  "h1",
+                  "h2",
+                  "h3",
+                  "h4",
+                  "h5",
+                  "h6",
+                  "span",
+                ],
+              })
+            )}
+          />
+        </div>
+      </div>
+    );
+  }
   if (dbData) {
     dbData.sort((a: any, b: any) => {
       if (a.change_date > b.change_date) {
@@ -43,15 +99,7 @@ export function SideBar() {
     });
     items = dbData.map((record: any) => ({
       key: record.id,
-      label: (
-        <div className={styles.noteItem}>
-          <div className={styles.noteDate}>{parseDate(record.change_date)}</div>
-          <div
-            className={styles.noteContent}
-            dangerouslySetInnerHTML={createMarkUp(marked.parse(record.content))}
-          />
-        </div>
-      ),
+      label: prepareRecord(record),
     }));
   }
 

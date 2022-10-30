@@ -7,6 +7,7 @@ import { workSpaceContext } from "../context/workSpaceContext";
 import { dbContext } from "../context/dbContext";
 
 import { marked } from "marked";
+import DOMPurify from "dompurify";
 
 import { parseDate } from "../SideBar";
 
@@ -26,7 +27,22 @@ export function WorkSpace() {
       if (note[0]) {
         setDateToDisplay(parseDate(note[0].change_date));
 
-        const value = marked.parse(note[0].content);
+        const value = DOMPurify.sanitize(marked.parse(note[0].content), {
+          ALLOWED_TAGS: [
+            "b",
+            "p",
+            "strong",
+            "em",
+            "i",
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+            "span",
+          ],
+        });
 
         setNoteToDisplay(value);
       }

@@ -27,14 +27,16 @@ export const Editor = () => {
   } as SimpleMdeToCodemirrorEvents;
 
   const changeValueFromDb = () => {
-    if (currentNote.id && dbData) {
-      const note = dbData.filter(
-        (elem: any) => elem.id.toString() === currentNote.id
-      );
+    if (!touched) {
+      if (currentNote.id && dbData) {
+        const note = dbData.filter(
+          (elem: any) => elem.id.toString() === currentNote.id
+        );
 
-      if (note[0]) {
-        setValue(note[0].content);
-        setData(note[0].content);
+        if (note[0]) {
+          setValue(note[0].content);
+          setData(note[0].content);
+        }
       }
     }
   };
@@ -52,6 +54,8 @@ export const Editor = () => {
     if (!touched) {
       changeValueFromDb();
       setTouched(true);
+
+      setData(value);
       setCurrentNote({
         id: currentNote.id,
         new: currentNote.new,

@@ -68,7 +68,7 @@ export function DbHandler() {
 
   useEffect(() => {
     updateNote();
-  }, [data]);
+  }, [data, currentNote.touched]);
 
   useEffect(() => {
     if (currentNote.delete) {
