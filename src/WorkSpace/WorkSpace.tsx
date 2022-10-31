@@ -57,7 +57,9 @@ export function WorkSpace() {
     return { __html: noteToDisplay };
   }
   const handleClick = () => {
-    setCurrentNote({ id: currentNote.id, openedForEdit: true, new: false });
+    if (currentNote.id) {
+      setCurrentNote({ id: currentNote.id, openedForEdit: true, new: false });
+    }
   };
   return (
     <Content className={styles.container}>
